@@ -126,4 +126,4 @@ Add aria-hidden="true" to all DOM elements that you want to hide from screen rea
 This includes:
 - design related elements 
 - elements that do not add any value from a SEO standpoint
-- doubled content for responsive design needs
+- duplicated content for some responsive layouts
