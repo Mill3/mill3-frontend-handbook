@@ -127,3 +127,20 @@ This includes:
 - design related elements 
 - elements that do not add any value from a SEO standpoint
 - duplicated content for some responsive layouts
+
+### ARIA-label
+When creating an HTML structure for a button or link, you may need to create inner element in order to perform animations or honor designers work. In these cases, these extra DOM elements may confuse screen readers.
+
+In order to prevent screen reader confusion, add aria-hidden="true" to your button's internal HTML structure. Then, force button label by adding aria-label="My button" to your button or link. This way, screen readers will ignore internal HTML structure and read button or link as it should be.
+
+```html
+<button class="btn" aria-label="My button">
+  <span class="btn__label" aria-hidden="true">My button</span>
+  <span class="btn__underline" aria-hidden="true"></span>
+</button>
+```
+
+### Using button -vs- link
+It's always tempting to use link for everything that received mouse/touch input. Unfortunately, it's bad pratice. Screen readers assume that a link will, by design, redirect to another URL. Then end result has been read like button text (or aria-label), then href attribute. If no href is provided or href="#", it will give wrong information to end user that may leave him from the website.
+
+You must use button for actions other than url navigation.
