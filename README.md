@@ -1,13 +1,14 @@
 # Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️
 
-Documenting our good practice and tools.
+Documenting our good practices and toolsets.
 ## Topics
 
 * UI/Components/Modules/Utilities structure
 * Classname naming convention (BEM)
 * Our utility class system (@mill3/system-ui-sass)
+* Webpack chunks loader explained
 * Mill3 WP Boilerplate
-* ARIA good pratices
+* ARIA good practices
 
 ## We split our modules using the following convention
 
@@ -38,14 +39,13 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 * Modifier classname with ```--```
 * Do not over scope child elements !
 
-```
+```html
 <header class="site-header">
   <hgroup class="site-header__wrap">
     <aside class="site-header__column">
       <p>Column section in site-header, not a child of __wrap</p>
       <span class="site-header__column__elem">Column child element</span>
     </aside>
-
     <aside class="site-header__column --modifier">
       ...
     </aside>
@@ -84,7 +84,6 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
       color: gold;
     }
   }
-
 }
 ```
 
@@ -101,8 +100,25 @@ Exemple :
 https://codepen.io/Coderesting/pen/yLyaJMz
 ## JS UI/Components/Modules/Utilities structure
 
+TODO : explain the factory patern
+
+> factory function is any function which is not a class or constructor that returns a (presumably new) object.
+## Webpack chunks loader
+
 TODO
 
+```html
+<header
+  class="site-header"
+  data-ui="site-header"
+>
+```
+
+https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barba.webpack-chunks.js
+
 ## Mill3 WP Boilerplate
+
+https://github.com/Mill3/mill3-wp-theme-boilerplate
+## ARIA good practices
 
 TODO
