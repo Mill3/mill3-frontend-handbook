@@ -121,4 +121,9 @@ https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barb
 https://github.com/Mill3/mill3-wp-theme-boilerplate
 ## ARIA good practices
 
-TODO
+### Hiding element from screen readers
+Add aria-hidden="true" to all DOM elements that you want to hide from screen readers.  
+This includes:
+- design related elements 
+- elements that do not add any value from a SEO standpoint
+- doubled content for responsive design needs
