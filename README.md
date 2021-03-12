@@ -1,15 +1,22 @@
+- [Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️](#mill3-studio---the-frontend-handbook---️)
+  - [We split our modules using the following convention](#we-split-our-modules-using-the-following-convention)
+  - [Classname naming convention](#classname-naming-convention)
+    - [SCSS structure :](#scss-structure-)
+  - [@mill3/system-ui-sass](#mill3system-ui-sass)
+  - [JS UI/Components/Modules/Utilities structure](#js-uicomponentsmodulesutilities-structure)
+    - [Anatomy of a class](#anatomy-of-a-class)
+  - [BarbaWebpackChunks plugin - DOM-Controller](#barbawebpackchunks-plugin---dom-controller)
+  - [Event Emitters](#event-emitters)
+  - [Mill3 WP Boilerplate](#mill3-wp-boilerplate)
+  - [ARIA good practices](#aria-good-practices)
+    - [Hiding element from screen readers](#hiding-element-from-screen-readers)
+    - [ARIA-label](#aria-label)
+    - [Using button -vs- link](#using-button--vs--link)
+
+
 # Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️
 
 Documenting our good practices and toolsets.
-## Topics
-
-* UI/Components/Modules/Utilities structure
-* Classname naming convention (BEM)
-* Our utility class system (@mill3/system-ui-sass)
-* Webpack chunks loader explained - Dom Controller concepts
-* Mill3 WP Boilerplate
-* ARIA good practices
-* Event emitters
 
 ## We split our modules using the following convention
 
@@ -102,15 +109,16 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 ```
 ## @mill3/system-ui-sass
 
-We development our own utility class framework for layout. It's inspired by Bootstrap and TailwindCSS.
+We developed our own utility class framework for layout structure. It's inspired by Bootstrap and TailwindCSS.
 
 https://www.npmjs.com/package/@mill3-packages/system-ui-sass
+https://github.com/Mill3/mill3-packages/tree/master/packages/system-ui-sass/src
 
 All available classes are documented in our Storybook site :
 
 https://mill3-system-ui-sass-demo-site.netlify.app/
 
-Real world example here :
+Real world examples here :
 
 https://mill3-system-ui-sass-demo-site.netlify.app/?path=/story/examples-grids--advanced-grid-layout
 ## JS UI/Components/Modules/Utilities structure
@@ -144,7 +152,7 @@ class MyModuleName {
     // prevent double init
     if(this.initialized) return;
 
-    // do stuff
+    // do some smart stuff
 
     // set class as initialized
     this.initialized = true;
@@ -152,7 +160,7 @@ class MyModuleName {
 
   // destroy stuff
   destroy() {
-    // undo stuff
+    // undo smart stuff
     this.initialized = false;
   }
 
@@ -169,7 +177,7 @@ class MyModuleName {
   // underscore prefix means private
   _privateMethod() {}
 
-  // underscore prefix means private
+  // binding method, must be binded to class in constructor method
   _methodForBinding() {}
 
 }
