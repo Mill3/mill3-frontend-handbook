@@ -1,7 +1,7 @@
 - [Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️](#mill3-studio---the-frontend-handbook---️)
-  - [We split our modules using the following convention](#we-split-our-modules-using-the-following-convention)
-  - [Classname naming convention](#classname-naming-convention)
-    - [SCSS structure :](#scss-structure-)
+  - [Modules structre convention](#modules-structre-convention)
+  - [Classname naming convention (BEM)](#classname-naming-convention-bem)
+    - [SCSS structure example :](#scss-structure-example-)
   - [@mill3/system-ui-sass](#mill3system-ui-sass)
   - [JS UI/Components/Modules/Utilities structure](#js-uicomponentsmodulesutilities-structure)
     - [Anatomy of a class](#anatomy-of-a-class)
@@ -18,7 +18,9 @@
 
 Documenting our good practices and toolsets.
 
-## We split our modules using the following convention
+## Modules structre convention
+
+We split our modules using the following convention
 
 * ```UI:``` anything that is present at all time on the UI: Site-header, Site-footer, Site-Nav, Site-Transition, Site-Loader. Preferably, prefix the element with ```Site``` before it.
 * ```Modules:``` anything that is model related (post type) or repeated usage in page. Invoked on demand and in context : Recipe, Article, TextTicker, 3rd party elements parsing lib, Player, etc.
@@ -39,7 +41,7 @@ src/js/modules/site-nav/index.js
 src/scss/modules/_Site-Nav.scss
 ```
 
-## Classname naming convention
+## Classname naming convention (BEM)
 
 We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-start/) naming convention.
 
@@ -64,7 +66,7 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 </header>
 ```
 
-### SCSS structure :
+### SCSS structure example :
 
 ```css
 .site-header {
@@ -111,7 +113,12 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 
 We developed our own utility class framework for layout structure. It's inspired by Bootstrap and TailwindCSS.
 
+**NPM :**
+
 https://www.npmjs.com/package/@mill3-packages/system-ui-sass
+
+**Source :**
+
 https://github.com/Mill3/mill3-packages/tree/master/packages/system-ui-sass/src
 
 All available classes are documented in our Storybook site :
