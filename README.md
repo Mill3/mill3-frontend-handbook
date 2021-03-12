@@ -6,9 +6,10 @@ Documenting our good practices and toolsets.
 * UI/Components/Modules/Utilities structure
 * Classname naming convention (BEM)
 * Our utility class system (@mill3/system-ui-sass)
-* Webpack chunks loader explained
+* Webpack chunks loader explained - Dom Controller concepts
 * Mill3 WP Boilerplate
 * ARIA good practices
+* Event emitters
 
 ## We split our modules using the following convention
 
@@ -66,7 +67,12 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
   /* basic style */
 
   &__wrap {
-    color: red;
+    /* do stuff outside utility-class */
+
+    /* media query mixin */
+    @include media-breakpoint-up(lg) {
+      /* do stuff for lg breakpoint */
+    }
   }
 
   &__column {
@@ -79,7 +85,7 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 
     /* a modifier class example */
     &.--modifier {
-      color: rebeccapurple;
+      opacity: 0.25;
     }
   }
 
@@ -88,50 +94,129 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
   &:hover,
   &.--active {
     /* refer to $self variable to avoid retyping .site-header on state change */
-    #{$self}__column {
-      color: gold;
+    #{$self}__elem {
+      opacity: 1;
     }
   }
 }
 ```
-
 ## @mill3/system-ui-sass
 
-
+We development our own utility class framework for layout. It's inspired by Bootstrap and TailwindCSS.
 
 https://www.npmjs.com/package/@mill3-packages/system-ui-sass
 
+All available classes are documented in our Storybook site :
+
 https://mill3-system-ui-sass-demo-site.netlify.app/
 
-Exemple :
+Real world example here :
 
-https://codepen.io/Coderesting/pen/yLyaJMz
+https://mill3-system-ui-sass-demo-site.netlify.app/?path=/story/examples-grids--advanced-grid-layout
 ## JS UI/Components/Modules/Utilities structure
 
 All JS classes should be stored in a directory representing its name. More on that later, but that structure is important when used with our BarbaJS Webkapack chunkloading plugin.
 
-TODO : explain the factory patern
+### Anatomy of a class
 
-> factory function is any function which is not a class or constructor that returns a (presumably new) object.
-## BarbaWebpackChunks plugin
+```modules/my-module-name/index.js```
 
-TODO
+```js
+import FooBar from 'foo-bar-npm-package';
+
+// const on top, you can export when needed
+const MY_CONST_SELECTOR = `[data-selector]`
+export const EXPORTABLE_CONST = `[data-selector]`
+
+class MyModuleName {
+  constructor() {
+    this.initialized = false;
+    this.foo = null;
+    this._methodForBinding = this._methodForBinding.bind(this);
+  }
+
+  get name() {
+    return `MyModuleName`;
+  }
+
+  // init stuff
+  init() {
+    // prevent double init
+    if(this.initialized) return;
+
+    // do stuff
+
+    // set class as initialized
+    this.initialized = true;
+  }
+
+  // destroy stuff
+  destroy() {
+    // undo stuff
+    this.initialized = false;
+  }
+
+  // create events
+  _bindEvents() {
+    this.foo.addEventListener('click', this._methodForBinding);
+  }
+
+  // destroy events
+  _unbindEvents() {
+    this.foo.removeEventListener('click', this._methodForBinding);
+  }
+
+  // underscore prefix means private
+  _privateMethod() {}
+
+  // underscore prefix means private
+  _methodForBinding() {}
+
+}
+```
+## BarbaWebpackChunks plugin - DOM-Controller
+
+We use the ```dom-controller``` approach with our JS module. When the page is ready, the app scan the source and search for UI and Module classes :
 
 ```html
-<header
-  class="site-header"
-  data-ui="site-header"
->
+<div data-ui="site-nav"></div>
+<div data-module="my-module"></div>
 ```
 
+An element can cast 1 or multiple class each seperated by a coma.
+
+```html
+<div data-ui="site-nav,foo-bar"></div>
+```
+
+The data-module or data-ui value ```my-module-name``` is transformed to PascalCase ```MyModuleName```, this should match your class static name :
+
+```html
+<div data-module="my-module-name"></div>
+```
+
+Which point to a file in ```modules/my-module-name/index.js```
+
+Inside the same class, you must use the ```PascalCase``` format or the class **won't** init :
+
+```js
+get name() {
+  return `MyModuleName`;
+}
+
+init() {
+  // init stuff
+}
+
+destroy() {
+  // destroy stuff
+}
+```
+
+**Barba plugins reference :**
+
 https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barba.webpack-chunks.js
-
-## Mill3 WP Boilerplate
-
-https://github.com/Mill3/mill3-wp-theme-boilerplate
-## ARIA good practices
-
-TODO
+https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barba.dom-controller.js
 
 ## Event Emitters
 
@@ -174,3 +259,39 @@ Finalement dans un autre module :
 button.addEventListener(`mouseenter`, this.emitter.emit('Foobar.dummy'))
 
 ```
+
+
+## Mill3 WP Boilerplate
+
+https://github.com/Mill3/mill3-wp-theme-boilerplate
+
+TODO: write a good and smart tutorial about this :)
+## ARIA good practices
+
+### Hiding element from screen readers
+
+Add aria-hidden="true" to all DOM elements that you want to hide from screen readers.
+This includes:
+- design related elements
+- elements that do not add any value from a SEO standpoint
+- duplicated content for some responsive layouts
+
+### ARIA-label
+
+When creating an HTML structure for a button or link, you may need to create inner element in order to perform animations or honor designers work. In these cases, these extra DOM elements may confuse screen readers.
+
+In order to prevent screen reader confusion, add aria-hidden="true" to your button's internal HTML structure. Then, force button label by adding aria-label="My button" to your button or link. This way, screen readers will ignore internal HTML structure and read button or link as it should be.
+
+```html
+<button class="btn" aria-label="My button">
+  <span class="btn__label" aria-hidden="true">My button</span>
+  <span class="btn__underline" aria-hidden="true"></span>
+</button>
+```
+
+### Using button -vs- link
+
+It's always tempting to use link for everything that received mouse/touch input. Unfortunately, it's bad pratice. Screen readers assume that a link will, by design, redirect to another URL. Then end result has been read like button text (or aria-label), then href attribute. If no href is provided or href="#", it will give wrong information to end user that may leave him from the website.
+
+You must use button for actions other than url navigation.
+
