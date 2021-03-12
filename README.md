@@ -42,13 +42,16 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 ```html
 <header class="site-header">
   <hgroup class="site-header__wrap">
+
     <aside class="site-header__column">
       <p>Column section in site-header, not a child of __wrap</p>
-      <span class="site-header__column__elem">Column child element</span>
+      <span class="site-header__column__elem">Site header column's child element</span>
     </aside>
+
     <aside class="site-header__column --modifier">
       ...
     </aside>
+
   </hgroup>
 </header>
 ```
@@ -68,6 +71,11 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 
   &__column {
     color: blue;
+
+    /* site-header > column > child element */
+    &__elem {
+      opacity: 0.5;
+    }
 
     /* a modifier class example */
     &.--modifier {
@@ -100,10 +108,12 @@ Exemple :
 https://codepen.io/Coderesting/pen/yLyaJMz
 ## JS UI/Components/Modules/Utilities structure
 
+All JS classes should be stored in a directory representing its name. More on that later, but that structure is important when used with our BarbaJS Webkapack chunkloading plugin.
+
 TODO : explain the factory patern
 
 > factory function is any function which is not a class or constructor that returns a (presumably new) object.
-## Webpack chunks loader
+## BarbaWebpackChunks plugin
 
 TODO
 
@@ -122,3 +132,45 @@ https://github.com/Mill3/mill3-wp-theme-boilerplate
 ## ARIA good practices
 
 TODO
+
+## Event Emitters
+
+Un traversal système est souvent nécessaire pour permettre un ou plusieurs module de communiquer entre eux.
+
+Exemple type, module ```SiteNav.js``` et ```MegaMenu.js```, les éléments du menu doivent ouvrir le MenuMenu en ```:hover```, donc envoyer un event ```Emitter.emit("MegaMenu.open")```.
+
+Chaque module reçoit le même ```EventEmitter2``` global, à partir duquel il pourra attacher des events.
+
+https://www.npmjs.com/package/eventemitter2
+
+```js
+\\ app.js
+
+const emitter = new EventEmitter2()
+const FoobarClassInstance = new FoobarClass()
+FoobarClassInstance.emitter = emitter
+
+```
+
+Ensuite dans la class
+
+```js
+// @modules/foo/FoobarClass.js
+_registerEvents() {
+  if(!this.emitter) return
+  this.emitter.once('Foobar.dummy', this._dummy)
+}
+
+_dummy() {
+  console.log(`Act Act !`)
+}
+
+```
+
+Finalement dans un autre module :
+
+```js
+// @modules/site-nav/SiteNav.js
+button.addEventListener(`mouseenter`, this.emitter.emit('Foobar.dummy'))
+
+```
