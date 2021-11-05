@@ -12,6 +12,8 @@
     - [Hiding element from screen readers](#hiding-element-from-screen-readers)
     - [ARIA-label](#aria-label)
     - [Using button -vs- link](#using-button--vs--link)
+  - [Locomotive-scroll recipes](#locomotive-scroll-recipes)
+    - [Fixed panel reveal](#fixed-panel-reveal)
 
 
 # Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️
@@ -310,3 +312,108 @@ It's always tempting to use link for everything that received mouse/touch input.
 
 You must use button for actions other than url navigation.
 
+
+## Locomotive-scroll recipes
+
+### Fixed panel reveal
+
+**Concept**
+
+The idea behind this concept is to have a fixed element, which is revealed by his parent.  
+Imagine this as you are seeing the world through a shoe box. The world is your fixed element and the shoe box is your viewport.
+
+As the viewport is scrolling down, the world reveal himself from the bottom. In a normal scrolling experience, you would see the top of your fixed element appearing from the bottom and moving up to viewport's top. 
+
+In a fixed panel reveal, when viewport is scrolling down, your fixed element's bottom would stick to viewport's bottom and reveal his content from bottom to top. 
+
+
+**Example**
+
+We first use this technique in [MILL3 website](https://mill3.studio).
+
+<video src="./assets/locomotive-scroll-fixed-panel-reveal.mp4" width="720" height="446" controls></video>
+
+**Naming convention**
+
+Viewport: DOM element containing everything. Scroll normally on the page (smooth-scroll or not). 
+Panel: Fixed DOM element containing all visual content for user (text/image/video/etc..). 
+Sticky Target: DOM element setting panel's limits.
+
+**Code**
+
+```html
+<section class="viewport position-relative overflow-hidden" data-scroll-section>
+  <div class="sticky-target position-absolute t-0 l-0 w-100">
+    <div 
+      class="panel d-flex flex-column justify-content-center align-items-center" 
+      data-scroll 
+      data-scroll-target=".sticky-target" 
+      data-scroll-sticky
+    >
+      <h1 class="m-0 mb-4">Hello World</h1>
+      <p>This is a fixed panel.</p>
+    </div>
+  </div>
+</section>
+```
+```css
+.viewport {
+  height: calc(var(--vh) * 100);
+}
+.sticky-target {
+  top: calc(var(--vh) * -100);
+  bottom: calc(var(--vh) * -100);
+}
+.panel {
+  height: calc(var(--vh) * 100);
+}
+```
+
+Your ``.viewport``, ``.sticky-target`` and ``.panel`` will, most of the time, be the same height.  
+If you want your panel to stay fixed longer in viewport, increase viewport's height to 200vh or 300vh.  
+
+
+**Panel smaller than 100vh**
+
+This technique required some adjustment to work with a panel smaller than 100vh.  
+The problem is that smaller panel need to stick to viewport's bottom until they are fully revealed. Then they need to scroll normally with the flow of the page. This little details implies some modifications to our previous code.
+
+```html
+<section class="viewport position-relative overflow-hidden" data-scroll-section>
+  <div class="sticky-target position-absolute t-0 l-0 w-100">
+    <div 
+      class="panel d-flex align-items-end" 
+      data-scroll 
+      data-scroll-target=".sticky-target" 
+      data-scroll-sticky
+    >
+      <div class="wrapper w-100 d-flex flex-column justify-content-center align-items-center">
+        <h1 class="m-0 mb-4">Hello World</h1>
+        <p>This is a fixed panel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+```
+```css
+.viewport {
+  height: calc(var(--vh) * 50);
+}
+.sticky-target {
+  top: calc(var(--vh) * -100);
+  bottom: 0;
+}
+.panel {
+  height: calc(var(--vh) * 100);
+}
+.wrapper {
+  height: calc(var(--vh) * 50);
+}
+```
+
+1. Wrap your content inside another DOM element.
+2. ``.wrapper`` height is equal to ``.viewport``.
+3. ``.panel`` needs to align his children to bottom.
+4. ``.sticky-target`` bottom equal 0.
+
+**Notes:** Smaller panel technique has not been tested on a lots of project. It may not work as expected on your project. If so, ask Dominic for some help.
