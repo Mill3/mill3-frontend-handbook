@@ -375,6 +375,8 @@ If you want your panel to stay fixed longer in viewport, increase viewport's hei
 
 **Panel smaller than 100vh**
 
+![Panel smaller than 100vh](/assets/images/locomotive-scroll-fixed-panel-small.gif "Panel smaller than 100vh")
+
 This technique required some adjustment to work with a panel smaller than 100vh.  
 The problem is that smaller panel need to stick to viewport's bottom until they are fully revealed. Then they need to scroll normally with the flow of the page. This little details implies some modifications to our previous code.
 
