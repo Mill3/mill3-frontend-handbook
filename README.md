@@ -333,7 +333,7 @@ We first use this technique in [MILL3 website](https://mill3.studio).
 
 <video src="./assets/locomotive-scroll-fixed-panel-reveal.mp4" width="720" height="446" controls></video>
 
-![Langmobile](../../blob/master/assets/00_Illustration04_00000.png "Langmobile")
+![Langmobile](/assets/images/00_Illustration04_00000.png "Langmobile")
 
 **Naming convention**
 
