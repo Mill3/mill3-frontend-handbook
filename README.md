@@ -331,7 +331,7 @@ In a fixed panel reveal, when viewport is scrolling down, your fixed element's b
 
 We first use this technique in [MILL3 website](https://mill3.studio).
 
-![MILL3 Fixed Panel Reveal](/assets/images/locomotive-scroll-fixed-panel-reveal.gif "MILL3 Fixed Panel Reveal")
+![MILL3 Fixed Panel Reveal](/assets/images/locomotive-scroll-fixed-panel-reveal-v2.gif "MILL3 Fixed Panel Reveal")
 
 **Naming convention**
 
