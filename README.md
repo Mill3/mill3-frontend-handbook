@@ -335,8 +335,8 @@ We first use this technique in [MILL3 website](https://mill3.studio).
 
 **Naming convention**
 
-Viewport: DOM element containing everything. Scroll normally on the page (smooth-scroll or not). 
-Panel: Fixed DOM element containing all visual content for user (text/image/video/etc..). 
+Viewport: DOM element containing everything. Scroll normally on the page (smooth-scroll or not).  
+Panel: Fixed DOM element containing all visual content for user (text/image/video/etc..).  
 Sticky Target: DOM element setting panel's limits.
 
 **Code**
