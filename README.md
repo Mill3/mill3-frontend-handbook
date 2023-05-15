@@ -14,6 +14,7 @@
     - [Using button -vs- link](#using-button--vs--link)
   - [Locomotive-scroll recipes](#locomotive-scroll-recipes)
     - [Fixed panel reveal](#fixed-panel-reveal)
+  - [Fixing webfont line-height problem](#fixing-webfont-line-height-problem)
 
 
 # Mill3 Studio - The frontend handbook 📙 🐉 🧙‍♂️
@@ -419,3 +420,16 @@ The problem is that smaller panel need to stick to viewport's bottom until they 
 4. ``.sticky-target`` bottom equal 0.
 
 **Notes:** Smaller panel technique has not been tested on a lots of project. It may not work as expected on your project. If so, ask Dominic for some help.
+
+
+
+## Fixing webfont line-height problem
+
+1. Install XCode Font Tools
+2. run in Terminal: ftxdumperfuser -t hhea -A d my-font-name.extension
+3. Open my-font-name.hhea.xml in your favorite text editor
+4. Check value of ascender property
+5. Go to [https://www.fontsquirrel.com/tools/webfont-generator]
+6. Upload your font and choose "expert" mode.
+7. In the Vertical Metrics tab, choose Custom Adjustment. Increase value from ascender value you have seen before. You may need to test various value before getting the correct one.
+8. No need to change X-Height Matching or anything else. Download your kit and install it in your project.
