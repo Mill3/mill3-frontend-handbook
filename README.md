@@ -35,13 +35,16 @@ The same logic should be applied to JS or CSS modules. **Very important :** make
 **JS module :**
 
 ```
-src/js/modules/site-nav/index.js
+src/js/modules/pb-row-medias/index.js
+src/js/ui/site-nav/index.js
 ```
 
 **CSS module**
 
 ```
-src/scss/modules/_Site-Nav.scss
+src/scss/modules/_accordions.scss
+src/scss/page-builder/_pb-row-medias.scss
+src/scss/ui/_site-nav.scss
 ```
 
 ## Classname naming convention (BEM)
@@ -72,6 +75,8 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 ### SCSS structure example :
 
 ```css
+@use "@mill3-sass-mixins/breakpoints";
+
 .site-header {
   /* save for later */
   $self: &;
@@ -82,8 +87,8 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
     /* do stuff outside utility-class */
 
     /* media query mixin */
-    @include media-breakpoint-up(lg) {
-      /* do stuff for lg breakpoint */
+    @include breakpoints.media-breakpoint-up(xl) {
+      /* do stuff for xl breakpoint */
     }
   }
 
@@ -112,6 +117,7 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
   }
 }
 ```
+
 ## @mill3/system-ui-sass
 
 We developed our own utility class framework for layout structure. It's inspired by Bootstrap and TailwindCSS.
@@ -131,110 +137,102 @@ https://mill3-system-ui-sass-demo-site.netlify.app/
 Real world examples here :
 
 https://mill3-system-ui-sass-demo-site.netlify.app/?path=/story/examples-grids--advanced-grid-layout
-## JS UI/Components/Modules/Utilities structure
 
-All JS classes should be stored in a directory representing its name. More on that later, but that structure is important when used with our BarbaJS Webkapack chunkloading plugin.
+## JS UI/Modules structure
 
-### Anatomy of a class
+All JS modules should be stored in a directory representing its name. That structure is important when used with Webpack chunkloading plugin.
 
-```modules/my-module-name/index.js```
+### Anatomy of a module
+
+```modules/my-module-name/index.js``` or ```ui/my-module-name/index.js```
 
 ```js
 import FooBar from 'foo-bar-npm-package';
+import { $ } from '@utils/dom';
+import { on, off } from '@utils/listener';
 
-// const on top, you can export when needed
-const MY_CONST_SELECTOR = `[data-selector]`
-export const EXPORTABLE_CONST = `[data-selector]`
+// constants on top, you can export when needed
+const MY_CONST = 'MY_CONST';
+export const EXPORTABLE_CONST = 'EXPORTABLE_CONST';
 
 class MyModuleName {
-  constructor() {
-    this.initialized = false;
-    this.foo = null;
+  constructor(el, emitter) {
+    this.el = el; // DOM element referenced with [data-module="my-module-name"]
+    this.emitter = emitter; // global emitter for communication between modules and other site wise architecture (js/core/emitter.js)
+    this.foo = $('.foo', this.el);
+
+    // methods binding
+    // sometimes, it's required to bind class methods to make sure "this" is referenced to the correct object
     this._methodForBinding = this._methodForBinding.bind(this);
   }
 
-  get name() {
-    return `MyModuleName`;
-  }
-
-  // init stuff
+  // REQUIRED METHOD
+  // invoked by Windmill (js/core/windmill.js) before module is visible to user
   init() {
-    // prevent double init
-    if(this.initialized) return;
-
     // do some smart stuff
-
-    // set class as initialized
-    this.initialized = true;
+    this._bindEvents();
   }
 
-  // destroy stuff
+  // REQUIRED METHOD
+  // invoked by Windmill (js/core/windmill.js) just before DOM element is removed from page
   destroy() {
-    // undo smart stuff
-    this.initialized = false;
+    // unbind UI related events
+    this._unbindEvents();
+
+    // delete references to all properties and methods binding
+    this.el = null;
+    this.emitter = null;
+    this.foo = null;
+
+    this._methodForBinding = null;
   }
 
-  // create events
+  // OPTIONAL METHOD
+  // invoked by Windmill (js/core/windmill.js) after all modules are initialized and SiteTransition is completed
+  start() {}
+
+  // OPTIONAL METHOD
+  // invoked by Windmill (js/core/windmill.js) right after window's History API change
+  stop() {}
+
   _bindEvents() {
-    this.foo.addEventListener('click', this._methodForBinding);
+    on(this.foo, 'click', this._methodForBinding)
   }
-
-  // destroy events
   _unbindEvents() {
-    this.foo.removeEventListener('click', this._methodForBinding);
+    off(this.foo, 'click', this._methodForBinding)
   }
 
-  // underscore prefix means private
+  // methods prefixed with _ (underscore) = private method
   _privateMethod() {}
 
-  // binding method, must be binded to class in constructor method
+  // binded method, reference to this will be correct
   _methodForBinding() {}
 
 }
 ```
-## BarbaWebpackChunks plugin - DOM-Controller
 
-We use the ```dom-controller``` approach with our JS module. When the page is ready, the app scan the source and search for UI and Module classes :
+## Windmill
+
+MILL3's Windmill is our internal solution to SPA page transition. Windmill is responsible for listening and triggering window's History API, loading requested URL via AJAX and replacing the new page's content at runtime. For more documentation about Windmill, see ```js/core/windmill.js```.
+
+### Modules loading using Windmill ###
+
+We prioritize asynchronous modules loading by default. This way of thinking allow us to load only the minimum JS during initial page loading.  
+All of this rely on Webpack Chunk plugin. To explain shortly, Webpack bundle all folders in ```js/modules/``` and ```js/ui``` into a small independant package.  
+When the DOM is ready, we scan all ```[data-module]``` and ```[data-ui]``` DOM nodes and load their specific modules.  
+The ```[data-module]``` or ```[data-ui]``` value should match your module filepath : ```modules/my-module/index.js```
 
 ```html
 <div data-ui="site-nav"></div>
 <div data-module="my-module"></div>
 ```
 
-An element can cast 1 or multiple class each seperated by a coma.
+An element can cast multiple modules at the same time. Seperated each module by a coma.  
+In example below, Webpack will load ```js/ui/site-nav/index.js``` AND ```js/ui/foo-bar/index.js```.  
 
 ```html
 <div data-ui="site-nav,foo-bar"></div>
 ```
-
-The data-module or data-ui value ```my-module-name``` is transformed to PascalCase ```MyModuleName```, this should match your class static name :
-
-```html
-<div data-module="my-module-name"></div>
-```
-
-Which point to a file in ```modules/my-module-name/index.js```
-
-Inside the same class, you must use the ```PascalCase``` format or the class **won't** init :
-
-```js
-get name() {
-  return `MyModuleName`;
-}
-
-init() {
-  // init stuff
-}
-
-destroy() {
-  // destroy stuff
-}
-```
-
-**Barba plugins reference :**
-
-https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barba.webpack-chunks.js
-https://github.com/Mill3/mill3-wp-theme-boilerplate/blob/master/src/js/core/barba.dom-controller.js
 
 ## Event Emitters
 
@@ -284,6 +282,7 @@ button.addEventListener(`mouseenter`, this.emitter.emit('Foobar.dummy'))
 https://github.com/Mill3/mill3-wp-theme-boilerplate
 
 TODO: write a good and smart tutorial about this :)
+
 ## ARIA good practices
 
 ### Hiding element from screen readers
@@ -314,7 +313,7 @@ It's always tempting to use link for everything that received mouse/touch input.
 You must use button for actions other than url navigation.
 
 
-## Locomotive-scroll recipes
+## Smooth scroll recipes
 
 ### Fixed panel reveal
 
@@ -327,12 +326,11 @@ As the viewport is scrolling down, the world reveal himself from the bottom. In 
 
 In a fixed panel reveal, when viewport is scrolling down, your fixed element's bottom would stick to viewport's bottom and reveal his content from bottom to top. 
 
-
 **Example**
 
 We first use this technique in [MILL3 website](https://mill3.studio).
 
-![MILL3 Fixed Panel Reveal](/assets/images/locomotive-scroll-fixed-panel-reveal-v2.gif "MILL3 Fixed Panel Reveal")
+![MILL3 Fixed Panel Reveal](/assets/images/fixed-panel-reveal-v2.gif "MILL3 Fixed Panel Reveal")
 
 **Naming convention**
 
@@ -343,81 +341,65 @@ Sticky Target: DOM element setting panel's limits.
 **Code**
 
 ```html
-<section class="viewport position-relative overflow-hidden" data-scroll-section>
-  <div class="sticky-target position-absolute t-0 l-0 w-100">
-    <div 
-      class="panel d-flex flex-column justify-content-center align-items-center" 
-      data-scroll 
-      data-scroll-target=".sticky-target" 
-      data-scroll-sticky
-    >
+<section class="viewport">
+  <div class="sticky-target w-100">
+    <div class="panel w-100 d-flex flex-column justify-content-center align-items-center">
       <h1 class="m-0 mb-4">Hello World</h1>
-      <p>This is a fixed panel.</p>
+      <p class="m-0">This is a fixed panel.</p>
     </div>
   </div>
 </section>
 ```
 ```css
 .viewport {
-  height: calc(var(--vh) * 100);
+  clip-path: inset(0);
+  height: 100vh;
+  position: relative;
 }
 .sticky-target {
-  top: calc(var(--vh) * -100);
-  bottom: calc(var(--vh) * -100);
+  position: absolute;
+  top: -100vh;
+  bottom: -100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 .panel {
-  height: calc(var(--vh) * 100);
+  height: 100vh;
+  position: sticky;
+  bottom: 0;
 }
 ```
 
-Your ``.viewport``, ``.sticky-target`` and ``.panel`` will, most of the time, be the same height.  
-If you want your panel to stay fixed longer in viewport, increase viewport's height to 200vh or 300vh.  
+[See code in action](https://codepen.io/ebhoren/full/RwzBONV)  
+
+Your ``.viewport`` and ``.panel`` will, most of the time, be the same height.  
+If you want your panel to stay fixed longer in viewport, increase viewport and panel height to 200vh or 300vh.  
+``.sticky-target`` height will be always be ``.panel`` + 200vh (top: -100vh; bottom: -100vh).  
+These top/bottom offset will allow ``.panel`` to stick into viewport during the full scrolling.  
 
 
 **Panel smaller than 100vh**
 
-![Panel smaller than 100vh](/assets/images/locomotive-scroll-fixed-panel-small.gif "Panel smaller than 100vh")
+![Panel smaller than 100vh](/assets/images/fixed-panel-small.gif "Panel smaller than 100vh")
 
 This technique required some adjustment to work with a panel smaller than 100vh.  
-The problem is that smaller panel need to stick to viewport's bottom until they are fully revealed. Then they need to scroll normally with the flow of the page. This little details implies some modifications to our previous code.
+The problem is that smaller panel need to stick to viewport's bottom until they are fully revealed. Then they need to scroll normally with the flow of the page. This little details implies some modifications to our previous css code.
 
-```html
-<section class="viewport position-relative overflow-hidden" data-scroll-section>
-  <div class="sticky-target position-absolute t-0 l-0 w-100">
-    <div 
-      class="panel d-flex align-items-end" 
-      data-scroll 
-      data-scroll-target=".sticky-target" 
-      data-scroll-sticky
-    >
-      <div class="wrapper w-100 d-flex flex-column justify-content-center align-items-center">
-        <h1 class="m-0 mb-4">Hello World</h1>
-        <p>This is a fixed panel.</p>
-      </div>
-    </div>
-  </div>
-</section>
-```
 ```css
 .viewport {
-  height: calc(var(--vh) * 50);
+  height: 50vh;
 }
 .sticky-target {
-  top: calc(var(--vh) * -100);
+  top: -50vh;
   bottom: 0;
 }
 .panel {
-  height: calc(var(--vh) * 100);
-}
-.wrapper {
-  height: calc(var(--vh) * 50);
+  height: 50vh;
 }
 ```
 
-1. Wrap your content inside another DOM element.
-2. ``.wrapper`` height is equal to ``.viewport``.
-3. ``.panel`` needs to align his children to bottom.
-4. ``.sticky-target`` bottom equal 0.
+[See code in action](https://codepen.io/ebhoren/full/QWXBRwL)  
 
 **Notes:** Smaller panel technique has not been tested on a lots of project. It may not work as expected on your project. If so, ask Dominic for some help.
 
