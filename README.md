@@ -2,18 +2,20 @@
   - [Modules structre convention](#modules-structre-convention)
   - [Classname naming convention (BEM)](#classname-naming-convention-bem)
     - [SCSS structure example :](#scss-structure-example-)
-  - [@mill3/system-ui-sass](#mill3system-ui-sass)
+  - [MILL3 Sass Library](#mill3-sass-library)
   - [JS UI/Components/Modules/Utilities structure](#js-uicomponentsmodulesutilities-structure)
     - [Anatomy of a class](#anatomy-of-a-class)
-  - [BarbaWebpackChunks plugin - DOM-Controller](#barbawebpackchunks-plugin---dom-controller)
+  - [Windmill](#windmill)
   - [Event Emitters](#event-emitters)
   - [Mill3 WP Boilerplate](#mill3-wp-boilerplate)
   - [ARIA good practices](#aria-good-practices)
     - [Hiding element from screen readers](#hiding-element-from-screen-readers)
     - [ARIA-label](#aria-label)
     - [Using button -vs- link](#using-button--vs--link)
-  - [Locomotive-scroll recipes](#locomotive-scroll-recipes)
+  - [Smooth scroll recipes](#smooth-scroll-recipes)
     - [Fixed panel reveal](#fixed-panel-reveal)
+  - [Converting font for the web](#converting-font-for-the-web)
+    - [Variable Fonts](#variable-fonts)
   - [Fixing webfont line-height problem](#fixing-webfont-line-height-problem)
 
 
@@ -118,17 +120,9 @@ We use a loose interpretation the [BEM](https://en.bem.info/methodology/quick-st
 }
 ```
 
-## @mill3/system-ui-sass
+## MILL3 Sass Library
 
 We developed our own utility class framework for layout structure. It's inspired by Bootstrap and TailwindCSS.
-
-**NPM :**
-
-https://www.npmjs.com/package/@mill3-packages/system-ui-sass
-
-**Source :**
-
-https://github.com/Mill3/mill3-packages/tree/master/packages/system-ui-sass/src
 
 All available classes are documented in our Storybook site :
 
@@ -236,7 +230,7 @@ In example below, Webpack will load ```js/ui/site-nav/index.js``` AND ```js/ui/f
 
 ## Event Emitters
 
-Un traversal système est souvent nécessaire pour permettre un ou plusieurs module de communiquer entre eux.
+Un système d'évènements centralisés est souvent nécessaire pour permettre un ou plusieurs module de communiquer entre eux.
 
 Exemple type, module ```SiteNav.js``` et ```MegaMenu.js```, les éléments du menu doivent ouvrir le MenuMenu en ```:hover```, donc envoyer un event ```Emitter.emit("MegaMenu.open")```.
 
@@ -403,6 +397,49 @@ The problem is that smaller panel need to stick to viewport's bottom until they 
 
 **Notes:** Smaller panel technique has not been tested on a lots of project. It may not work as expected on your project. If so, ask Dominic for some help.
 
+
+
+## Converting font for the web
+
+To begin, you need to install [FontTools](https://formulae.brew.sh/formula/fonttools) via Homebrew. 
+When it's done, run this command in Terminal:
+
+```bash
+pyftsubset "input.ttf" --flavor=woff2 --output-file="ouput.woff2" --unicodes="U+0020-007F,U+00A0-00FF,U+20AC,U+20BC,U+2010,U+2013,U+2014,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+2026,U+2022"
+```
+
+What it does it that it take a .ttf or .otf file and used only a subset of characters (specified in the --unicodes parameter).  
+Then, it compress and save output in .woff2 format.  
+Technique was inspired by [Walter Bert](https://walterebert.com/blog/subsetting-web-fonts/).  
+
+**Notes:** To know which unicodes to use for your project, see [https://www.zachleat.com/unicode-range-interchange/](https://www.zachleat.com/unicode-range-interchange/). Paste unicodes in left textarea, and it will show all characters that will be included in font. If you need more character, add them in the middle textarea. If right textarea's size doesn't change after adding characters in middle textarea, it means that this character is already included in left textarea unicodes ranges.  
+
+```css
+@font-face {
+  font-family: 'My-Font-Family';
+  src: url('#{$font-directory}My-Font-Family.woff2') format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0020-007F,U+00A0-00FF,U+20AC,U+2010,U+2013,U+2014,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+2026,U+2022;
+}
+```
+
+### Variable Fonts
+
+For variable fonts you should add woff2 supports variations and woff2-variations format declarations for better browser compatibility. 
+
+```css
+@font-face {
+  font-family: 'My-Font-Family';
+  src: url('#{$font-directory}My-Font-Family.woff2') format("woff2 supports variations"),
+       url('#{$font-directory}My-Font-Family.woff2') format("woff2-variations");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0020-007F,U+00A0-00FF,U+20AC,U+2010,U+2013,U+2014,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+2026,U+2022;
+}
+```
 
 
 ## Fixing webfont line-height problem
