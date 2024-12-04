@@ -402,7 +402,7 @@ The problem is that smaller panel need to stick to viewport's bottom until they 
 
 ## Converting font for the web
 
-To begin, you need to install [FontTools](https://formulae.brew.sh/formula/fonttools) via Homebrew. 
+To begin, you need to install [FontTools](https://formulae.brew.sh/formula/fonttools) via Homebrew.  
 When it's done, run this command in Terminal:
 
 ```bash
