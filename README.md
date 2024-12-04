@@ -126,11 +126,12 @@ We developed our own utility class framework for layout structure. It's inspired
 
 All available classes are documented in our Storybook site :
 
-https://mill3-system-ui-sass-demo-site.netlify.app/
+https://css.mill3.dev/
 
 Real world examples here :
 
-https://mill3-system-ui-sass-demo-site.netlify.app/?path=/story/examples-grids--advanced-grid-layout
+https://css.mill3.dev/?path=/story/component-interactive-demo--component-demo  
+https://css.mill3.dev/?path=/story/grid-interactive-demo--grid-demo
 
 ## JS UI/Modules structure
 
