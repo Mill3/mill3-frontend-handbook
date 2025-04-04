@@ -406,11 +406,19 @@ To begin, you need to install [FontTools](https://formulae.brew.sh/formula/fontt
 When it's done, run this command in Terminal:
 
 ```bash
+fonttools ttLib.woff2 compress -o=output.woff2 input.ttf
+```
+
+### Font subsetting
+
+First, you need to install FontTools. See [FontTools](https://formulae.brew.sh/formula/fonttools) for more information.  
+Then, run this command in Terminal:
+
+```bash
 pyftsubset "input.ttf" --flavor=woff2 --output-file="ouput.woff2" --unicodes="U+0020-007F,U+00A0-00FF,U+20AC,U+20BC,U+2010,U+2013,U+2014,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+2026,U+2022"
 ```
 
-What it does it that it take a .ttf or .otf file and used only a subset of characters (specified in the --unicodes parameter).  
-Then, it compress and save output in .woff2 format.  
+What it does it that it take a .woff2 file and used only a subset of characters (specified in the --unicodes parameter) and save back the file.  
 Technique was inspired by [Walter Bert](https://walterebert.com/blog/subsetting-web-fonts/).  
 
 **Notes:** To know which unicodes to use for your project, see [https://www.zachleat.com/unicode-range-interchange/](https://www.zachleat.com/unicode-range-interchange/). Paste unicodes in left textarea, and it will show all characters that will be included in font. If you need more character, add them in the middle textarea. If right textarea's size doesn't change after adding characters in middle textarea, it means that this character is already included in left textarea unicodes ranges.  
@@ -446,10 +454,20 @@ For variable fonts you should add woff2 supports variations and woff2-variations
 ## Fixing webfont line-height problem
 
 1. Install XCode Font Tools
-2. run in Terminal: ftxdumperfuser -t hhea -A d my-font-name.extension
+2. run in Terminal: 
+   ```bash 
+   ftxdumperfuser -t hhea -A d my-font-name.extension
+   ```
+   *We only support TTF or OTF fonts.*
 3. Open my-font-name.hhea.xml in your favorite text editor
-4. Check value of ascender property
-5. Go to [https://www.fontsquirrel.com/tools/webfont-generator]
-6. Upload your font and choose "expert" mode.
-7. In the Vertical Metrics tab, choose Custom Adjustment. Increase value from ascender value you have seen before. You may need to test various value before getting the correct one.
-8. No need to change X-Height Matching or anything else. Download your kit and install it in your project.
+4. Edit value of *ascender* and *lineGap* property from the .xml file.  
+   What you reduce in *lineGap* must be added to *ascender* value.  
+   Example: if *lineGap* is 200 and *ascender* is 800, you can set *lineGap* to 0 and *ascender* to 1000.  
+   This will give you a better line-height for your font.
+5. Save the .xml file.  
+6. run in Terminal: 
+   ```bash 
+   ftxdumperfuser -t hhea -A f my-font-name.extension
+   ```
+   This will save back the font file with the new *ascender* and *lineGap* values.
+7. Convert your font to woff2 using [previously mentionned method](#converting-font-for-the-web).
